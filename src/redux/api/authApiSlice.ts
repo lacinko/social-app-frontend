@@ -1,18 +1,19 @@
-import { LoginInput } from '../../pages/login.page'
-import { RegisterInput } from '../../pages/register.page'
-import { IGenericResponse } from './types'
-import { userApi } from './userApiSlice'
-import { apiSlice } from './apiSlice'
+import { LoginInput } from "../../pages/login.page";
+import { RegisterInput } from "../../pages/register.page";
+import { IGenericResponse } from "./types";
+import { userApi } from "./userApiSlice";
+import { apiSlice } from "./apiSlice";
 
 export const authApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     registerUser: builder.mutation<IGenericResponse, RegisterInput>({
       query(data) {
+        const url = "auth/register";
         return {
-          url: 'auth/register',
-          method: 'POST',
+          url: url,
+          method: "POST",
           body: data,
-        }
+        };
       },
     }),
     loginUser: builder.mutation<
@@ -21,18 +22,18 @@ export const authApi = apiSlice.injectEndpoints({
     >({
       query(data) {
         return {
-          url: 'auth/login',
-          method: 'POST',
+          url: "auth/login",
+          method: "POST",
           body: data,
-          credentials: 'include',
-        }
+          credentials: "include",
+        };
       },
       async onQueryStarted(_args, { dispatch, queryFulfilled }) {
         try {
-          await queryFulfilled
-          await dispatch(userApi.endpoints.getMe.initiate(null))
+          await queryFulfilled;
+          await dispatch(userApi.endpoints.getMe.initiate(null));
         } catch (error) {
-          console.log(error)
+          console.log(error);
         }
       },
     }),
@@ -43,24 +44,24 @@ export const authApi = apiSlice.injectEndpoints({
       query({ verificationCode }) {
         return {
           url: `auth/verifyemail/${verificationCode}`,
-          method: 'GET',
-        }
+          method: "GET",
+        };
       },
     }),
     logoutUser: builder.mutation<void, void>({
       query() {
         return {
-          url: 'logout',
-          credentials: 'include',
-        }
+          url: "logout",
+          credentials: "include",
+        };
       },
     }),
   }),
-})
+});
 
 export const {
   useRegisterUserMutation,
   useLoginUserMutation,
   useVerifyEmailMutation,
   useLogoutUserMutation,
-} = authApi
+} = authApi;
