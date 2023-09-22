@@ -8,6 +8,7 @@ import { TypeOf, object, string } from "zod";
 import { useRegisterUserMutation } from "@/redux/api/authApiSlice";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const passwordVerificationRegex =
   /^(?=(.*[a-z]){3,})(?=(.*[A-Z]){2,})(?=(.*[0-9]){2,})(?=(.*[!@#$%^&*()\-__+.]){1,}).{8,}$/;
@@ -34,6 +35,7 @@ const registerSchema = object({
 export type TRegister = TypeOf<typeof registerSchema>;
 
 function RegisterPage() {
+  const user = useAuth();
   const [registerUser, { isLoading, isSuccess, error, isError, data }] =
     useRegisterUserMutation();
 

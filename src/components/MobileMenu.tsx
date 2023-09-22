@@ -1,35 +1,31 @@
 import { cn } from "@/lib/utils";
+import { NavLink } from "react-router-dom";
 
 type MobileMenuProps = {
   isMenuOpen: boolean;
+  menuLinks: {
+    name: string;
+    href: string;
+    access: string;
+  }[];
 };
 
-function MobileMenu({ isMenuOpen }: MobileMenuProps) {
+function MobileMenu({ isMenuOpen, menuLinks }: MobileMenuProps) {
   return (
     <div
       id="mobile-nav"
       className={cn(
-        isMenuOpen ? "animate-open-menu" : "animate-close-menu",
+        isMenuOpen ? "translate-y-4 scroll-mt-10" : "animate-close-menu",
         "lg:hidden"
       )}
     >
       <nav>
         <ul>
-          <li>
-            <a href="/">Home</a>
-          </li>
-          <li>
-            <a href="/meditations">Meditations</a>
-          </li>
-          <li>
-            <a href="/profile">Profile</a>
-          </li>
-          <li>
-            <a href="/login">Login</a>
-          </li>
-          <li>
-            <a href="/register">Register</a>
-          </li>
+          {menuLinks.map((link) => (
+            <li key={link.name} className="py-1">
+              <NavLink to={link.href}>{link.name}</NavLink>
+            </li>
+          ))}
         </ul>
       </nav>
     </div>

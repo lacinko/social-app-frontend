@@ -7,9 +7,11 @@ import { useNavigate, useParams } from "react-router-dom";
 
 function VerifyEmailPage() {
   const { verificationCode } = useParams() as { verificationCode: string };
-  const [verifyEmail, { isLoading, isError, isSuccess, data, error }] =
+  const [verifyEmail, { isLoading, isError, isSuccess, error }] =
     useVerifyEmailMutation();
   const navigate = useNavigate();
+
+  const errorMessage = error ? error?.data.message : null;
 
   async function handleClickVerifyUser() {
     try {
@@ -35,7 +37,7 @@ function VerifyEmailPage() {
         <Logo size="large" />
         <div className="pt-12"></div>
         <div className="flex flex-col gap-5">
-          <p className="font-bold text-5xl">
+          <p className="font-bold text-xl lg:text-5xl">
             Verify your email to finish signing up for Meditations
           </p>
           <p className="text-gray-500">
@@ -50,7 +52,7 @@ function VerifyEmailPage() {
           </Button>
           {isError && (
             <p role="alert" className="text-sm font-medium text-destructive">
-              There was an error verifying your email
+              {errorMessage}
             </p>
           )}
         </div>

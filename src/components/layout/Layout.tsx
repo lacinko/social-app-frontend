@@ -5,11 +5,13 @@ import Footer from "./Footer";
 
 function Layout() {
   return (
-    <React.Fragment>
+    <div className="flex flex-col min-h-[100dvh]">
       <Header />
-      <Outlet />
+      <main className="flex-grow">
+        <Outlet />
+      </main>
       <Footer />
-    </React.Fragment>
+    </div>
   );
 }
 

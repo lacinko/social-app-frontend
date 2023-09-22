@@ -1,16 +1,22 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { TypeOf, literal, object, string } from "zod";
 import Logo from "../components/Logo";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLoaderData, useNavigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { Button } from "@/components/ui/Button";
 import L_Input from "@/components/Input";
 import L_Label from "@/components/Label";
 import { useLoginUserMutation } from "@/redux/api/authApiSlice";
 import { useEffect } from "react";
+import { useGetMeQuery } from "@/redux/api/userApiSlice";
+import { IUser } from "@/redux/api/types";
+import { checkIfObjectIsEmpty } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 
 function LoginPage(): JSX.Element {
+  const test = useLoaderData<{ test: string }>();
+  const user = useAuth();
   const [loginUser, { isLoading, isSuccess, error, isError, data }] =
     useLoginUserMutation();
 
@@ -60,8 +66,7 @@ function LoginPage(): JSX.Element {
 
   const onSubmitHandler: SubmitHandler<TLogin> = async (values: TLogin) => {
     try {
-      const response = await loginUser(values);
-      console.log(response);
+      await loginUser(values);
     } catch (err) {
       console.log(err);
     }
