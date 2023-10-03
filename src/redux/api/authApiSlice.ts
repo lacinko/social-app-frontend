@@ -3,6 +3,7 @@ import { RegisterInput } from "../../pages/register.page";
 import { IGenericResponse } from "./types";
 import { userApi } from "./userApiSlice";
 import { apiSlice } from "./apiSlice";
+import { logout } from "../features/userSlice";
 
 export const authApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -51,9 +52,18 @@ export const authApi = apiSlice.injectEndpoints({
     logoutUser: builder.mutation<void, void>({
       query() {
         return {
-          url: "logout",
+          url: "auth/logout",
           credentials: "include",
         };
+      },
+      invalidatesTags: ["User"],
+      async onQueryStarted(_args, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(userApi.util.upsertQueryData("getMe", null, null));
+        } catch (error) {
+          console.log(error);
+        }
       },
     }),
     forgotPassword: builder.mutation<void, { email: string }>({

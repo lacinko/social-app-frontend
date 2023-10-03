@@ -1,4 +1,4 @@
-import { setUser } from "../features/userSlice";
+import { logout, setUser } from "../features/userSlice";
 import { IUser } from "./types";
 import { apiSlice } from "./apiSlice";
 
@@ -15,16 +15,17 @@ export const userApi = apiSlice.injectEndpoints({
       },
       // @ts-expect-error - this is a bug in the current version of RTK Query
       providesTags: ["User"],
-      transformResponse: (result: { data: { user: IUser } }) =>
-        result.data.user,
-      async onQueryStarted(_args, { dispatch, queryFulfilled }) {
+      transformResponse: (result: { data: { user: IUser } }) => {
+        return result.data.user;
+      },
+      /*async onQueryStarted(_args, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          dispatch(setUser(data));
+          //dispatch(setUser(data));
         } catch (error) {
           console.log(error);
         }
-      },
+      },*/
     }),
   }),
 });

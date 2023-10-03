@@ -1,8 +1,11 @@
-import { useAppSelector } from "@/redux/hooks";
+import { IUser } from "@/redux/api/types";
 import { Link } from "react-router-dom";
 
-function Avatar() {
-  const user = useAppSelector((state) => state.userState.user);
+type AvatarProps = {
+  user: IUser | null;
+};
+
+function Avatar({ user }: AvatarProps) {
   if (!user)
     return (
       <Link

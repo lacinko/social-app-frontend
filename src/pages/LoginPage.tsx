@@ -1,26 +1,25 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { TypeOf, literal, object, string } from "zod";
+import { TypeOf, object, string } from "zod";
 import Logo from "../components/Logo";
-import { Link, useLoaderData, useNavigate } from "react-router-dom";
-import { Toaster } from "@/components/ui/toaster";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import L_Input from "@/components/Input";
 import L_Label from "@/components/Label";
 import { useLoginUserMutation } from "@/redux/api/authApiSlice";
 import { useEffect } from "react";
-import { useGetMeQuery } from "@/redux/api/userApiSlice";
-import { IUser } from "@/redux/api/types";
-import { checkIfObjectIsEmpty } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "@/components/ui/use-toast";
 
 function LoginPage(): JSX.Element {
-  const test = useLoaderData<{ test: string }>();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useAuth();
   const [loginUser, { isLoading, isSuccess, error, isError, data }] =
     useLoginUserMutation();
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
 
   const loginSchema = object({
     email: string().min(1, "Email is required").email("Email is invalid"),
@@ -74,13 +73,16 @@ function LoginPage(): JSX.Element {
 
   useEffect(() => {
     if (isSuccess) {
-      navigate("/profile");
+      toast({
+        title: "Login success",
+        description: "You successfully logged in!",
+      });
+      navigate(from);
     }
   }, [isSuccess]);
 
   return (
-    <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-      <Toaster />
+    <div className="flex min-h-full flex-1 container flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <Logo size="large" />
         <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">

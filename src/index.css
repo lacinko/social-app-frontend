@@ -35,4 +35,11 @@
 
     --radius: 0.5rem;
   }
+
+  .kurva > .ql-toolbar {
+    display: none;
+  }
+  .kurva > .ql-container.ql-snow {
+    border: none;
+  }
 }

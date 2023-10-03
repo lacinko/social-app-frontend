@@ -7,6 +7,11 @@ import ResetPasswordPage from "@/pages/ResetPasswordPage";
 import VerifyEmailPage from "@/pages/VerifyEmailPage";
 import { createBrowserRouter } from "react-router-dom";
 import { userLoader } from "./Loader";
+import MeditationsPage from "@/pages/MeditationsPage";
+import CreateCollectionPage from "@/pages/CreateCollectionPage";
+import CollectionPageDetail from "@/pages/CollectionPageDetail";
+import SubmitPostPage from "@/pages/SubmitPostPage";
+import PostDetailPage from "@/pages/PostDetailPage";
 
 export const router = createBrowserRouter([
   {
@@ -56,6 +61,28 @@ export const router = createBrowserRouter([
           {
             path: "profile",
             element: <div>Profile</div>,
+          },
+          {
+            path: "meditations",
+            element: <MeditationsPage />,
+            children: [
+              {
+                path: "create-collection",
+                element: <CreateCollectionPage />,
+              },
+            ],
+          },
+          {
+            path: "meditations/:collectionId",
+            element: <CollectionPageDetail />,
+          },
+          {
+            path: "submit-post",
+            element: <SubmitPostPage />,
+          },
+          {
+            path: "post/:postId",
+            element: <PostDetailPage />,
           },
         ],
       },
