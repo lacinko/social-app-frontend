@@ -6,12 +6,12 @@ import RegisterPage from "@/pages/RegisterPage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
 import VerifyEmailPage from "@/pages/VerifyEmailPage";
 import { createBrowserRouter } from "react-router-dom";
-import { userLoader } from "./Loader";
 import MeditationsPage from "@/pages/MeditationsPage";
 import CreateCollectionPage from "@/pages/CreateCollectionPage";
 import CollectionPageDetail from "@/pages/CollectionPageDetail";
 import SubmitPostPage from "@/pages/SubmitPostPage";
 import PostDetailPage from "@/pages/PostDetailPage";
+import { useGetMeQuery } from "@/redux/api/userApiSlice";
 
 export const router = createBrowserRouter([
   {
