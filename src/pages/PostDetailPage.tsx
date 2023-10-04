@@ -1,4 +1,5 @@
 import CommentList from "@/components/CommentList";
+import Comments from "@/components/Comments";
 import LeaveComment from "@/components/LeaveComment";
 import PostItem from "@/components/PostItem";
 import { convertUrlParamsIntoURLString } from "@/lib/utils";
@@ -21,10 +22,6 @@ function PostDetailPage() {
     selectFromResult: ({ data }) => ({ user: data || null }),
   });
 
-  const [createLike] = useCreateLikeMutation();
-  const [updateLike] = useUpdateLikeMutation();
-  const [deleteLike] = useDeleteLikeMutation();
-
   // Define an object to represent the parameters
   const postQueryParams = {
     include: {
@@ -34,6 +31,7 @@ function PostDetailPage() {
       comments: {
         include: {
           likes: true,
+          children: true,
           author: {
             select: {
               name: true,
@@ -65,37 +63,6 @@ function PostDetailPage() {
   const myLike = (post?.likes as Like[]).find(
     (like) => like.authorId === user?.id
   );
-  const isLiked = !!myLike;
-
-  console.log(post);
-
-  const handleLike = async (
-    event: React.MouseEvent<HTMLButtonElement>,
-    isPositive: boolean
-  ) => {
-    try {
-      const { name } = event.currentTarget;
-      const likeState = myLike?.isPositive ? "like" : "dislike";
-
-      if (isLiked && likeState === name) {
-        await deleteLike({ postId });
-      }
-
-      if (isLiked) {
-        await updateLike({
-          postId: postId,
-          isPositive: isPositive,
-        });
-      } else {
-        await createLike({
-          postId: postId,
-          isPositive: isPositive,
-        });
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   return (
     <div>
@@ -115,7 +82,6 @@ function PostDetailPage() {
           myLike={myLike}
           isDetail={true}
           handleCommentFocus={() => setIsFocused(!isFocused)}
-          createLike={handleLike}
         />
       )}
       <LeaveComment
@@ -124,10 +90,7 @@ function PostDetailPage() {
         isFocused={isFocused}
         setIsFocused={setIsFocused}
       />
-      <CommentList
-        comments={comments}
-        handleCommentFocus={() => setIsFocused(!isFocused)}
-      />
+      <Comments />
     </div>
   );
 }

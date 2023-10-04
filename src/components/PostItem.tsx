@@ -62,7 +62,7 @@ function PostItem({
             theme="snow"
             value={content}
             readOnly={true}
-            className="kurva"
+            className="editor"
           />
         )}
         <UserActionBar
@@ -70,9 +70,7 @@ function PostItem({
           myLike={myLike}
           comments={commentsTotal}
           url="www.test.com"
-          handleComment={handleCommentFocus}
-          handleLike={createLike}
-          type="postId"
+          postId={id}
         />
       </div>
     </>

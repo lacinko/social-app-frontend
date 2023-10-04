@@ -2,31 +2,65 @@ import { Button } from "./ui/Button";
 import { Icons } from "./Icons";
 import { Like } from "@/redux/api/types";
 import { cn } from "@/lib/utils";
+import {
+  useCreateLikeMutation,
+  useDeleteLikeMutation,
+  useUpdateLikeMutation,
+} from "@/redux/api/likeApiSlice";
 
 type UserActionBarProps = {
   likes: number;
   comments: number;
-  url: string;
-  handleShare: () => void;
-  handleLike: (
-    event: React.MouseEvent<HTMLButtonElement>,
-    isPositive: boolean
-  ) => void;
-  handleComment: () => void;
   myLike: Like;
-  type: string;
+  postId?: string;
+  commentId?: string;
+  handleComment: () => void;
 };
 
 function UserActionBar({
   likes,
   comments,
-  url,
-  handleShare,
-  handleLike,
-  handleComment,
   myLike,
-  type,
+  postId,
+  commentId,
+  handleComment,
 }: UserActionBarProps) {
+  const isLiked = !!myLike;
+
+  const [createLike] = useCreateLikeMutation();
+  const [updateLike] = useUpdateLikeMutation();
+  const [deleteLike] = useDeleteLikeMutation();
+
+  const handleLike = async (
+    event: React.MouseEvent<HTMLButtonElement>,
+    isPositive: boolean
+  ) => {
+    try {
+      const { name } = event.currentTarget;
+      const likeState = myLike?.isPositive ? "like" : "dislike";
+
+      if (isLiked && likeState === name) {
+        return await deleteLike({ postId, commentId });
+      }
+
+      if (isLiked) {
+        await updateLike({
+          postId,
+          commentId,
+          isPositive,
+        });
+      } else {
+        await createLike({
+          postId,
+          commentId,
+          isPositive,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const setButtonClass = () => {
     if (myLike?.isPositive) {
       return "bg-indigo-500 text-white";
@@ -37,17 +71,8 @@ function UserActionBar({
     }
   };
   const buttonCSS = setButtonClass();
-  const onClickShareHandler = () => {
-    console.log(url);
-    handleShare();
-  };
 
-  const onClickLikeHandler = (
-    event: React.MouseEvent<HTMLButtonElement>,
-    isPositive: boolean
-  ) => {
-    handleLike(event, isPositive);
-  };
+  const handleShare = () => {};
 
   return (
     <div className="flex justify-between mt-4">
@@ -62,7 +87,7 @@ function UserActionBar({
             name="like"
             variant={"ghost"}
             className="h-8 rounded-full"
-            onClick={(event) => onClickLikeHandler(event, true)}
+            onClick={(event) => handleLike(event, true)}
           >
             <Icons.thumbsUp className="w-4 h-4" />
           </Button>
@@ -71,7 +96,7 @@ function UserActionBar({
             name="dislike"
             variant={"ghost"}
             className="h-8 rounded-full"
-            onClick={(event) => onClickLikeHandler(event, false)}
+            onClick={(event) => handleLike(event, false)}
           >
             <Icons.thumbsDown className="w-4 h-4" />
           </Button>
@@ -79,7 +104,7 @@ function UserActionBar({
         <Button
           variant={"outline"}
           className="px-4 rounded-full h-8"
-          onClick={() => handleComment()}
+          onClick={handleComment}
         >
           <Icons.comment className="w-4 h-4 mr-1" /> {comments}
         </Button>
@@ -87,7 +112,7 @@ function UserActionBar({
       <Button
         variant={"outline"}
         className="px-4 rounded-full h-8"
-        onClick={onClickShareHandler}
+        onClick={handleShare}
       >
         <Icons.share className="w-4 h-4 mr-1" /> Share
       </Button>

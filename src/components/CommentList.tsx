@@ -1,67 +1,115 @@
-import { Like } from "@/redux/api/types";
+import { Comment, IUser, Like } from "@/redux/api/types";
 import UserActionBar from "./UserActionBar";
 import UserInfoHeader from "./UserInfoHeader";
-
-type Comment = {
-  id: string;
-  postId: string;
-  content: string;
-  createdAt: string;
-  updatedAt: string;
-  authorId: string;
-  author: {
-    name: string;
-    photo: string;
-  };
-  likes: Like[];
-};
+import { useGetMeQuery } from "@/redux/api/userApiSlice";
+import { useState } from "react";
+import LeaveComment from "./LeaveComment";
+import { useGetCommentsQuery } from "@/redux/api/commentApiSlice";
+import { convertUrlParamsIntoURLString } from "@/lib/utils";
+import { useParams } from "react-router-dom";
+import CommentItem from "./Comment";
 
 type CommentListProps = {
-  comments: Comment[];
-  myLike: Like;
-  handleCommentFocus: () => void;
-  createLike: () => void;
+  parentId: string | null;
 };
 
-function CommentList({
-  comments,
-  myLike,
-  handleCommentFocus,
-  createLike,
-}: CommentListProps) {
+function CommentList({ parentId }: CommentListProps) {
+  const [showMore, setShowMore] = useState("");
+  const { postId } = useParams();
+  //const parentId = "6bf63c7b-05fb-4dd5-9d98-94d2dad84177";
+  const commentQueryParams = {
+    include: {
+      likes: true,
+      author: {
+        select: {
+          name: true,
+          photo: true,
+        },
+      },
+      children: true,
+    },
+  };
+  /*
+  const commentQueryParams = {
+    include: {
+      likes: true,
+      author: {
+        select: {
+          name: true,
+          photo: true,
+        },
+      },
+      children: {
+        include: {
+          likes: true,
+          children: {
+            include: {
+              likes: true,
+              author: {
+                select: {
+                  name: true,
+                  photo: true,
+                },
+              },
+            },
+          },
+          author: {
+            select: {
+              name: true,
+              photo: true,
+            },
+          },
+        },
+      },
+    },
+  };
+*/
+  const commentQueryString = convertUrlParamsIntoURLString(commentQueryParams);
+
+  const { comments, parent, isFetching, isError } = useGetCommentsQuery(
+    { postId, parentId, commentQueryString },
+    {
+      selectFromResult: ({ data }) => {
+        return {
+          comments: data?.data?.comments || null,
+        };
+      },
+    }
+  );
+
+  const { user } = useGetMeQuery(null, {
+    selectFromResult: ({ data }) => ({ user: data || null }),
+  });
+
+  console.log(parent);
+
   return (
     <div className="container pt-2">
-      {comments.map((comment) => {
-        const likesTotal = (comment?.likes as Like[]).filter(
-          (like) => like.isPositive
-        ).length;
+      {comments &&
+        comments.map((comment) => {
+          const myLike = comment?.likes?.find(
+            (like) => like.authorId === user.id
+          ) as Like;
 
-        const dislikesTotal = (comment?.likes as Like[]).filter(
-          (like) => !like.isPositive
-        ).length;
+          const likesTotal = (comment?.likes as Like[])?.filter(
+            (like) => like.isPositive
+          ).length;
 
-        const commentsTotal = 10;
-        return (
-          <div key={comment.id}>
-            <UserInfoHeader
-              author={comment.author}
-              createdAt={comment.createdAt}
-            />
-            <div className="ml-7">
-              <p>{comment.content}</p>
-            </div>
+          const dislikesTotal = (comment?.likes as Like[])?.filter(
+            (like) => !like.isPositive
+          ).length;
 
-            <UserActionBar
-              likes={likesTotal - dislikesTotal}
+          const commentsTotal = 10;
+          return (
+            <CommentItem
+              comment={comment}
+              likesTotal={likesTotal}
+              dislikesTotal={dislikesTotal}
+              commentsTotal={commentsTotal}
               myLike={myLike}
-              comments={commentsTotal}
-              url="www.test.com"
-              handleComment={handleCommentFocus}
-              handleLike={createLike}
             />
-          </div>
-        );
-      })}
+          );
+        })}
     </div>
   );
 }

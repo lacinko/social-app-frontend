@@ -36,4 +36,6 @@ export type Comment = {
     name: string;
     photo: string;
   };
+  likes: Like[];
+  children: Comment[];
 };

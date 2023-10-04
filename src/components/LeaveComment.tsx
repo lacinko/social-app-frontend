@@ -6,21 +6,25 @@ import { SubmitHandler, set, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCreateCommentMutation } from "@/redux/api/commentApiSlice";
 import { toast } from "./ui/use-toast";
-import { IUser } from "@/redux/api/types";
+import { useGetMeQuery } from "@/redux/api/userApiSlice";
 
 type LeaveCommentProps = {
-  user: IUser;
   postId: string;
+  parentId: string;
   isFocused: boolean;
   setIsFocused: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 function LeaveComment({
-  user,
   postId,
+  parentId,
   isFocused,
   setIsFocused,
 }: LeaveCommentProps) {
+  const { user } = useGetMeQuery(null, {
+    selectFromResult: ({ data }) => ({ user: data || null }),
+  });
+
   const [createComment, { isError, isLoading, isSuccess, error }] =
     useCreateCommentMutation();
 
@@ -29,6 +33,7 @@ function LeaveComment({
 
   const commentSchema = object({
     postId: string(),
+    parentId: string().optional(),
     content: string({
       required_error: "The comment is required",
     }),
@@ -45,6 +50,7 @@ function LeaveComment({
     resolver: zodResolver(commentSchema),
     defaultValues: {
       postId,
+      parentId,
       content: "",
     },
   });
@@ -78,7 +84,7 @@ function LeaveComment({
   }, [isFocused, setFocus]);
 
   return (
-    <div className="container pt-2">
+    <div className="container py-4">
       <div className="flex gap-2 items-center">
         {userPhoto}
         <form onSubmit={handleSubmit(onSubmitHandler)} className="w-full">

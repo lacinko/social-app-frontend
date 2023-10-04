@@ -36,10 +36,10 @@
     --radius: 0.5rem;
   }
 
-  .kurva > .ql-toolbar {
+  .editor > .ql-toolbar {
     display: none;
   }
-  .kurva > .ql-container.ql-snow {
+  .editor > .ql-container.ql-snow {
     border: none;
   }
 }
