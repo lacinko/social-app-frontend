@@ -40,13 +40,12 @@ function UserActionBar({
       const likeState = myLike?.isPositive ? "like" : "dislike";
 
       if (isLiked && likeState === name) {
-        return await deleteLike({ postId, commentId });
+        return await deleteLike(myLike.id);
       }
 
       if (isLiked) {
         await updateLike({
-          postId,
-          commentId,
+          id: myLike.id,
           isPositive,
         });
       } else {

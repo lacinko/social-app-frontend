@@ -3,16 +3,18 @@ import UserInfoHeader from "./UserInfoHeader";
 import UserActionBar from "./UserActionBar";
 import LeaveComment from "./LeaveComment";
 import CommentList from "./CommentList";
+import { Like, Comment } from "@/redux/api/types";
+import { Button } from "./ui/Button";
 
 type CommentProps = {
-  comment: Comment[];
+  comment: Comment;
   likesTotal: number;
   dislikesTotal: number;
   commentsTotal: number;
-  myLike: Comment;
+  myLike: Like;
 };
 
-function Comment({
+function CommentItem({
   comment,
   likesTotal,
   dislikesTotal,
@@ -20,17 +22,8 @@ function Comment({
   myLike,
 }: CommentProps) {
   const [showMore, setShowMore] = useState(false);
-  const [commentToReply, setCommentToReply] = useState("");
+  const [commentToReply, setCommentToReply] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-
-  const showCommentReplyInput = (commentId: string) => {
-    console.log(commentId);
-    if (commentId)
-      setCommentToReply((prevId) => {
-        if (prevId === commentId) return "";
-        return commentId;
-      });
-  };
 
   return (
     <div>
@@ -45,29 +38,28 @@ function Comment({
           myLike={myLike}
           comments={commentsTotal}
           commentId={comment.id}
-          handleComment={() => showCommentReplyInput(comment.id)}
+          handleComment={() => setCommentToReply(!commentToReply)}
         />
       </div>
-      {commentToReply === comment.id && (
-        <LeaveComment parentId={comment.id} postId={comment.postId} />
+      {commentToReply && (
+        <LeaveComment
+          parentId={comment.id}
+          postId={comment.postId}
+          isFocused={isFocused}
+          setIsFocused={setIsFocused}
+        />
       )}
       {comment?.children && comment?.children.length > 0 && (
-        <button
-          onClick={() =>
-            setShowMore((prevVal) => {
-              if (prevVal === comment.id) return "";
-              return comment.id;
-            })
-          }
+        <Button
+          className="my-4 text-xs py-1 px-2 h-full"
+          onClick={() => setShowMore(!showMore)}
         >
-          Show More
-        </button>
+          {showMore ? "Hide Comments" : "Show More"}
+        </Button>
       )}
-      {showMore === comment.id && (
-        <CommentList parentId={comment?.children[0]?.parentId} />
-      )}
+      {showMore && <CommentList parentId={comment?.children[0]?.parentId} />}
     </div>
   );
 }
 
-export default Comment;
+export default CommentItem;

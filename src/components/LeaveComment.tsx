@@ -10,7 +10,7 @@ import { useGetMeQuery } from "@/redux/api/userApiSlice";
 
 type LeaveCommentProps = {
   postId: string;
-  parentId: string;
+  parentId: string | null;
   isFocused: boolean;
   setIsFocused: React.Dispatch<React.SetStateAction<boolean>>;
 };

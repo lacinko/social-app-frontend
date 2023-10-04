@@ -1,13 +1,7 @@
 import CommentList from "@/components/CommentList";
-import Comments from "@/components/Comments";
 import LeaveComment from "@/components/LeaveComment";
 import PostItem from "@/components/PostItem";
 import { convertUrlParamsIntoURLString } from "@/lib/utils";
-import {
-  useCreateLikeMutation,
-  useDeleteLikeMutation,
-  useUpdateLikeMutation,
-} from "@/redux/api/likeApiSlice";
 import { useGetPostQuery } from "@/redux/api/postApiSlice";
 import { Like } from "@/redux/api/types";
 import { useGetMeQuery } from "@/redux/api/userApiSlice";
@@ -59,7 +53,6 @@ function PostDetailPage() {
   if (isLoading) return <div>Loading....</div>;
 
   const collection = post?.collection ?? {};
-  const comments = post?.comments ?? [];
   const myLike = (post?.likes as Like[]).find(
     (like) => like.authorId === user?.id
   );
@@ -85,12 +78,12 @@ function PostDetailPage() {
         />
       )}
       <LeaveComment
-        user={user}
         postId={postId}
+        parentId={null}
         isFocused={isFocused}
         setIsFocused={setIsFocused}
       />
-      <Comments />
+      <CommentList parentId={null} />
     </div>
   );
 }

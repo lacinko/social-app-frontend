@@ -25,9 +25,9 @@ export const likeApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ["Post"],
     }),
     deleteLike: builder.mutation({
-      query({ objectType, id }) {
+      query(id) {
         return {
-          url: `likes/${objectType}/${id}`,
+          url: `likes/${id}`,
           method: "DELETE",
           credentials: "include",
         };
