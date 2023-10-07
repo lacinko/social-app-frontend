@@ -11,6 +11,7 @@ import { useParams } from "react-router-dom";
 function PostDetailPage() {
   const { postId = "" } = useParams<{ postId: string }>();
   const [isFocused, setIsFocused] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
 
   const { user } = useGetMeQuery(null, {
     selectFromResult: ({ data }) => ({ user: data || null }),
@@ -40,19 +41,14 @@ function PostDetailPage() {
   // Convert the object to a URL-encoded query string
   const postQueryString = convertUrlParamsIntoURLString(postQueryParams);
 
-  const {
-    currentData: post,
-    isLoading,
-    isError,
-    error,
-  } = useGetPostQuery({
+  const { currentData, isLoading, isError, error } = useGetPostQuery({
     postId,
     postQueryString,
   });
 
   if (isLoading) return <div>Loading....</div>;
 
-  const collection = post?.collection ?? {};
+  const { collection, ...post } = currentData;
   const myLike = (post?.likes as Like[]).find(
     (like) => like.authorId === user?.id
   );
@@ -81,7 +77,9 @@ function PostDetailPage() {
         postId={postId}
         parentId={null}
         isFocused={isFocused}
+        isEdit={isEdit}
         setIsFocused={setIsFocused}
+        setIsEdit={setIsEdit}
       />
       <CommentList parentId={null} />
     </div>

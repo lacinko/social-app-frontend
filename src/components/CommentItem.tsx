@@ -18,27 +18,50 @@ function CommentItem({
   comment,
   likesTotal,
   dislikesTotal,
-  commentsTotal,
   myLike,
 }: CommentProps) {
   const [showMore, setShowMore] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
   const [commentToReply, setCommentToReply] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
 
   return (
     <div>
       <div key={comment.id}>
-        <UserInfoHeader author={comment.author} createdAt={comment.createdAt} />
-        <div className="ml-7">
-          <p>{comment.content}</p>
-        </div>
+        <UserInfoHeader
+          collectionName={null}
+          author={comment.author}
+          createdAt={comment.createdAt}
+          id={comment.id}
+          setIsEdit={setIsEdit}
+          editItemName="Comment"
+        />
+        {isEdit ? (
+          <LeaveComment
+            parentId={comment.id}
+            postId={comment.postId}
+            isFocused={isFocused}
+            isEdit={isEdit}
+            setCommentToReply={() => setCommentToReply(false)}
+            setIsFocused={setIsFocused}
+            setShowMore={setShowMore}
+            setIsEdit={setIsEdit}
+          />
+        ) : (
+          <div className="ml-7">
+            <p>{comment.content}</p>
+          </div>
+        )}
 
         <UserActionBar
           likes={likesTotal - dislikesTotal}
           myLike={myLike}
-          comments={commentsTotal}
+          comments={comment.children.length}
           commentId={comment.id}
-          handleComment={() => setCommentToReply(!commentToReply)}
+          handleComment={() => {
+            setCommentToReply(!commentToReply);
+            setIsFocused(true);
+          }}
         />
       </div>
       {commentToReply && (
@@ -46,7 +69,11 @@ function CommentItem({
           parentId={comment.id}
           postId={comment.postId}
           isFocused={isFocused}
+          isEdit={isEdit}
+          setCommentToReply={() => setCommentToReply(false)}
           setIsFocused={setIsFocused}
+          setShowMore={setShowMore}
+          setIsEdit={setIsEdit}
         />
       )}
       {comment?.children && comment?.children.length > 0 && (

@@ -26,6 +26,8 @@ function SubmitPostPage() {
   const [createPost, { isSuccess: isPostSubmitSuccess }] =
     useCreatePostMutation();
 
+  console.log(collections);
+
   const postSchema = object({
     collectionId: string().min(1, "Collection is required"),
     title: string().min(1, "Title is required"),
@@ -45,7 +47,7 @@ function SubmitPostPage() {
   } = useForm<TPost>({
     resolver: zodResolver(postSchema),
     defaultValues: {
-      collectionId: collections[0].id,
+      collectionId: collections && collections[0].id,
       title: "",
       content: "",
       image: "default-image.jpg",

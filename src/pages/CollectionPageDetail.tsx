@@ -66,6 +66,10 @@ function CollectionPageDetail() {
     console.log(posts);
   }, [posts]);
 
+  useEffect(() => {
+    getPostsByCollection({ collectionId, postQueryString });
+  }, [collectionId]);
+
   if (isLoading) return <div>Loading...</div>;
 
   const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {

@@ -39,3 +39,31 @@ export type Comment = {
   likes: Like[];
   children: Comment[];
 };
+
+export type Collection = {
+  id: string;
+  name: string;
+  nsfw: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  type: "PUBLIC" | "RESTRICTED" | "PRIVATE";
+};
+
+export type Post = {
+  id: string;
+  title: string;
+  content: string;
+  image: string;
+  published: boolean;
+  createdAt: string;
+  updatedAt: string;
+  authorId: string;
+  collectionId: string;
+  likes: Like[];
+  author: {
+    name: string;
+    photo: string;
+  };
+  comments: Comment[];
+  collection: Collection;
+};

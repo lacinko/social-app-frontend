@@ -13,14 +13,20 @@ export const postApiSlice = apiSlice.injectEndpoints({
       },
     }),
     getPosts: builder.query({
-      query() {
+      query(postsQueryString) {
         return {
-          url: "posts",
+          url: `posts?${postsQueryString}`,
           method: "GET",
-          credentials: "include",
         };
       },
+      transformResponse: (response) => {
+        return response.data.posts;
+      },
+      providesTags: ["Post"],
     }),
+    /*
+    TODO: getUserPosts
+    */
     getPostsByCollection: builder.query({
       query({ collectionId, postQueryString }) {
         return {
@@ -47,6 +53,26 @@ export const postApiSlice = apiSlice.injectEndpoints({
         return response.data.post;
       },
     }),
+    updatePost: builder.mutation({
+      query({ id, values }) {
+        return {
+          url: `posts/${id}`,
+          method: "PATCH",
+          body: { ...values },
+          credentials: "include",
+        };
+      },
+      invalidatesTags: ["Post"],
+    }),
+    deletePost: builder.mutation({
+      query(id) {
+        return {
+          url: `posts/${id}`,
+          method: "DELETE",
+          credentials: "include",
+        };
+      },
+    }),
   }),
 });
 
@@ -56,4 +82,6 @@ export const {
   useLazyGetPostsByCollectionQuery,
   useGetPostsByCollectionQuery,
   useGetPostQuery,
+  useUpdatePostMutation,
+  useDeletePostMutation,
 } = postApiSlice;

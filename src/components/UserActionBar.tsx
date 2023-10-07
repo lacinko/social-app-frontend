@@ -36,6 +36,7 @@ function UserActionBar({
     isPositive: boolean
   ) => {
     try {
+      event.preventDefault();
       const { name } = event.currentTarget;
       const likeState = myLike?.isPositive ? "like" : "dislike";
 
@@ -46,7 +47,7 @@ function UserActionBar({
       if (isLiked) {
         await updateLike({
           id: myLike.id,
-          isPositive,
+          data: { isPositive },
         });
       } else {
         await createLike({
@@ -71,7 +72,10 @@ function UserActionBar({
   };
   const buttonCSS = setButtonClass();
 
-  const handleShare = () => {};
+  const handleShare = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    console.log("POST-ID", postId, "COMMENT-ID", commentId);
+  };
 
   return (
     <div className="flex justify-between mt-4">
@@ -111,7 +115,7 @@ function UserActionBar({
       <Button
         variant={"outline"}
         className="px-4 rounded-full h-8"
-        onClick={handleShare}
+        onClick={(e) => handleShare(e)}
       >
         <Icons.share className="w-4 h-4 mr-1" /> Share
       </Button>

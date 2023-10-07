@@ -14,9 +14,9 @@ export const likeApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ["Post"],
     }),
     updateLike: builder.mutation({
-      query(data) {
+      query({ id, data }) {
         return {
-          url: "likes/",
+          url: `likes/${id}`,
           method: "PATCH",
           body: data,
           credentials: "include",

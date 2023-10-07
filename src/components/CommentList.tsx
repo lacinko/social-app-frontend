@@ -37,8 +37,13 @@ function CommentList({ parentId }: CommentListProps) {
     { postId, parentId, commentQueryString },
     {
       selectFromResult: ({ data }) => {
+        const sortedComments = data?.data?.comments
+          .slice()
+          .sort((a: Comment, b: Comment) => {
+            return +new Date(a.createdAt) - +new Date(b.createdAt);
+          });
         return {
-          comments: data?.data?.comments || null,
+          comments: sortedComments || null,
           isError: data?.error || null,
           isFetching: data?.isFetching || null,
         };
@@ -53,8 +58,10 @@ function CommentList({ parentId }: CommentListProps) {
   if (isFetching) return <div>Loading....</div>;
   if (isError) return <div>Failed to load</div>;
 
+  console.log("COMMENTS", comments);
+
   return (
-    <div className="container pt-2">
+    <div className="flex flex-col gap-4 container py-2">
       {comments &&
         comments.map((comment) => {
           const myLike = comment?.likes?.find(

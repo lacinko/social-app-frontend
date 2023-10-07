@@ -11,7 +11,7 @@ import CreateCollectionPage from "@/pages/CreateCollectionPage";
 import CollectionPageDetail from "@/pages/CollectionPageDetail";
 import SubmitPostPage from "@/pages/SubmitPostPage";
 import PostDetailPage from "@/pages/PostDetailPage";
-import { useGetMeQuery } from "@/redux/api/userApiSlice";
+import HomePage from "@/pages/HomePage";
 
 export const router = createBrowserRouter([
   {
@@ -19,6 +19,10 @@ export const router = createBrowserRouter([
     element: <Layout />,
     children: [
       //PUBLIC ROUTES
+      {
+        index: true,
+        element: <HomePage />,
+      },
       {
         path: "login",
         element: <LoginPage />,

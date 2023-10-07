@@ -1,25 +1,37 @@
 import { useEffect } from "react";
-import { TypeOf, object, string } from "zod";
+import { TypeOf, nullable, object, string, union } from "zod";
 import { Icons } from "./Icons";
 import L_Input from "@/components/Input";
-import { SubmitHandler, set, useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCreateCommentMutation } from "@/redux/api/commentApiSlice";
+import {
+  useCreateCommentMutation,
+  useUpdateCommentMutation,
+} from "@/redux/api/commentApiSlice";
 import { toast } from "./ui/use-toast";
 import { useGetMeQuery } from "@/redux/api/userApiSlice";
+import { Button } from "./ui/Button";
 
 type LeaveCommentProps = {
   postId: string;
   parentId: string | null;
   isFocused: boolean;
+  isEdit: boolean;
   setIsFocused: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowMore?: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
+  setCommentToReply?: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 function LeaveComment({
   postId,
   parentId,
   isFocused,
+  isEdit,
   setIsFocused,
+  setShowMore,
+  setIsEdit,
+  setCommentToReply,
 }: LeaveCommentProps) {
   const { user } = useGetMeQuery(null, {
     selectFromResult: ({ data }) => ({ user: data || null }),
@@ -28,12 +40,14 @@ function LeaveComment({
   const [createComment, { isError, isLoading, isSuccess, error }] =
     useCreateCommentMutation();
 
+  const [updateComment] = useUpdateCommentMutation();
+
   const userPhoto =
     user && !user.photo ? user.photo : <Icons.user className="w-8 h-8" />;
 
   const commentSchema = object({
     postId: string(),
-    parentId: string().optional(),
+    parentId: string().nullable(),
     content: string({
       required_error: "The comment is required",
     }),
@@ -46,6 +60,7 @@ function LeaveComment({
     handleSubmit,
     formState: { errors },
     setFocus,
+    reset,
   } = useForm<TComment>({
     resolver: zodResolver(commentSchema),
     defaultValues: {
@@ -57,8 +72,14 @@ function LeaveComment({
 
   const onSubmitHandler: SubmitHandler<TComment> = async (values: TComment) => {
     try {
-      console.log(values);
-      await createComment(values);
+      if (isEdit) {
+        await updateComment({ id: parentId, content: values.content });
+      } else {
+        await createComment(values);
+        parentId && setShowMore(true);
+      }
+      parentId && setCommentToReply(false);
+      setIsEdit(false);
     } catch (err: any) {
       console.log(err);
     }
@@ -71,10 +92,16 @@ function LeaveComment({
   };
 
   useEffect(() => {
-    toast({
-      title: "Error!",
-      description: "Somthing went wrong",
-    });
+    if (isError) {
+      toast({
+        title: "Error!",
+        description: "Somthing went wrong",
+      });
+    }
+
+    if (isSuccess) {
+      reset();
+    }
   }, [isError, isSuccess]);
 
   useEffect(() => {
@@ -85,8 +112,8 @@ function LeaveComment({
 
   return (
     <div className="container py-4">
-      <div className="flex gap-2 items-center">
-        {userPhoto}
+      <div className="flex gap-2 items-start">
+        <div className="pt-1">{userPhoto}</div>
         <form onSubmit={handleSubmit(onSubmitHandler)} className="w-full">
           <L_Input
             id="content"
@@ -94,8 +121,25 @@ function LeaveComment({
             register={register}
             className="focus-visible:ring-indigo-600 rounded-3xl"
             onKeyDown={handleKeyDown}
-            onBlur={() => setIsFocused(false)}
+            //onBlur={() => setIsFocused(false)}
+            onFocusCapture={() => setIsFocused(true)}
           />
+          {isFocused && (
+            <div className="flex justify-end gap-2 mt-4">
+              <Button
+                type="button"
+                onClick={() => {
+                  setIsFocused(false);
+                  setIsEdit(false);
+                  parentId && setCommentToReply(false);
+                }}
+                variant={"outline"}
+              >
+                Cancel
+              </Button>
+              <Button>{isEdit ? "Update" : "Send"}</Button>
+            </div>
+          )}
         </form>
       </div>
       {isError && (
