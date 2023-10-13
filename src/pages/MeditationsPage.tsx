@@ -1,17 +1,50 @@
 import { useState } from "react";
-import { buttonVariants } from "@/components/ui/Button";
-import { NavLink, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import List from "@/components/List";
-import { useGetCollectionsQuery } from "@/redux/api/collectionApiSlice";
+import {
+  useGetCollectionsAccountsQuery,
+  useGetCollectionsQuery,
+} from "@/redux/api/collectionApiSlice";
+import { useGetMeQuery } from "@/redux/api/userApiSlice";
+import { convertUrlParamsIntoURLString } from "@/lib/utils";
 
 function MeditationsPage() {
-  const [showCollection, setShowCollection] = useState(true);
-  const handleClick = async (isVisible: boolean) => {
-    setShowCollection(isVisible);
+  const { user } = useGetMeQuery(null, {
+    selectFromResult: ({ data }) => ({ user: data || null }),
+  });
+
+  const userCollectionsQueryParams = {
+    where: {
+      members: {
+        some: {
+          userId: user?.id,
+        },
+      },
+    },
   };
-  const { isLoading, isSuccess, isError, currentData } = useGetCollectionsQuery(
-    {}
+
+  const userCollectionsQueryString = convertUrlParamsIntoURLString(
+    userCollectionsQueryParams
   );
+
+  const { isLoading, isSuccess, isError, currentData } = useGetCollectionsQuery(
+    userCollectionsQueryString
+  );
+
+  const collectionsAccountsQueryParams = {
+    where: {
+      userId: user?.id,
+    },
+  };
+
+  const collectionsAccountsQueryString = convertUrlParamsIntoURLString(
+    collectionsAccountsQueryParams
+  );
+  const { data: userCollections } = useGetCollectionsAccountsQuery(
+    collectionsAccountsQueryString
+  );
+
+  console.log(userCollections);
 
   let content;
   if (isLoading) content = <div>Loading...</div>;
@@ -24,31 +57,18 @@ function MeditationsPage() {
           isOrdered={false}
           list={currentData}
           className="gap-4 pt-6"
-          listItemStyle="bg-indigo-200 p-2 rounded-md shadow-md hover:bg-indigo-300 cursor-pointer"
+          listItemStyle="p-2 rounded-md shadow-md hover:bg-gray-200 cursor-pointer"
         />
       </div>
     );
 
   return (
-    <div className="container py-3">
+    <div className="container py-4">
       <div>
-        <div className="flex gap-1">
-          <NavLink
-            to="create-collection"
-            onClick={() => handleClick(false)}
-            className={buttonVariants()}
-          >
-            New collection
-          </NavLink>
-          <NavLink
-            to="/meditations"
-            onClick={() => handleClick(true)}
-            className={buttonVariants()}
-          >
-            My collections
-          </NavLink>
-        </div>
-        {showCollection && content}
+        <h1 className="font-semibold text-lg py-2 text-gray-900">
+          My Collections
+        </h1>
+        {content}
         <Outlet />
       </div>
     </div>

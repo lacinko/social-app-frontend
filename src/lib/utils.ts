@@ -44,3 +44,12 @@ export const convertUrlParamsIntoURLString = (queryParams: GenericObject) => {
     })
     .join("&");
 };
+
+export const copyContent = async (text: string): Promise<string> => {
+  try {
+    await navigator.clipboard.writeText(text);
+    return "Content copied to clipboard";
+  } catch (err) {
+    return `Failed to copy: ${err}`;
+  }
+};

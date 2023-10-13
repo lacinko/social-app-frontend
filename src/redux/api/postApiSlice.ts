@@ -1,4 +1,5 @@
 import { apiSlice } from "./apiSlice";
+import { Post } from "./types";
 
 export const postApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -12,7 +13,7 @@ export const postApiSlice = apiSlice.injectEndpoints({
         };
       },
     }),
-    getPosts: builder.query({
+    getPosts: builder.query<Post[], string>({
       query(postsQueryString) {
         return {
           url: `posts?${postsQueryString}`,
@@ -20,7 +21,7 @@ export const postApiSlice = apiSlice.injectEndpoints({
         };
       },
       transformResponse: (response) => {
-        return response.data.posts;
+        return response?.data?.posts;
       },
       providesTags: ["Post"],
     }),

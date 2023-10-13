@@ -30,6 +30,7 @@ type PostItem = {
   comments: Comment[];
   myLike: Like;
   collection: Collection;
+  isMember: boolean;
 };
 
 function PostItem({
@@ -44,6 +45,7 @@ function PostItem({
   comments,
   myLike,
   collection,
+  isMember,
 }: PostItem) {
   const [isEdit, setIsEdit] = useState(false);
   const likesTotal = (likes as Like[]).filter((like) => like.isPositive).length;
@@ -105,6 +107,7 @@ function PostItem({
           author={author}
           createdAt={createdAt}
           id={id}
+          isMember={isMember}
           editItemName="Post"
           setIsEdit={setIsEdit}
         />

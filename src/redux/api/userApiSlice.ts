@@ -1,8 +1,5 @@
-import { logout, setUser } from "../features/userSlice";
 import { IUser } from "./types";
 import { apiSlice } from "./apiSlice";
-
-apiSlice.enhanceEndpoints({ addTagTypes: ["User"] });
 
 export const userApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -13,7 +10,6 @@ export const userApi = apiSlice.injectEndpoints({
           credentials: "include",
         };
       },
-      // @ts-expect-error - this is a bug in the current version of RTK Query
       providesTags: ["User"],
       transformResponse: (result: { data: { user: IUser } }) => {
         return result.data.user;
@@ -27,7 +23,18 @@ export const userApi = apiSlice.injectEndpoints({
         }
       },*/
     }),
+    updateUser: builder.mutation({
+      query(data) {
+        return {
+          url: "users/me",
+          body: data,
+          method: "PATCH",
+          credentials: "include",
+        };
+      },
+      invalidatesTags: ["User"],
+    }),
   }),
 });
 
-export const { useGetMeQuery } = userApi;
+export const { useGetMeQuery, useUpdateUserMutation } = userApi;

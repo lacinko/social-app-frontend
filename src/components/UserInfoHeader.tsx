@@ -5,9 +5,14 @@ import { useState, useEffect } from "react";
 import FlyoutMenu from "./FlyoutMenu";
 import { useDeleteCommentMutation } from "@/redux/api/commentApiSlice";
 import { useDeletePostMutation } from "@/redux/api/postApiSlice";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "./ui/use-toast";
 import { Collection } from "@/redux/api/types";
+import {
+  useJoinCollectionMutation,
+  useLeaveCollectionMutation,
+} from "@/redux/api/collectionApiSlice";
+import { useGetMeQuery } from "@/redux/api/userApiSlice";
 
 type UserInfoHeaderProps = {
   id: string;
@@ -18,7 +23,8 @@ type UserInfoHeaderProps = {
   };
   createdAt: string;
   setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
-  collection: Collection;
+  collection: Collection | null;
+  isMember: boolean;
 };
 
 function UserInfoHeader({
@@ -28,6 +34,7 @@ function UserInfoHeader({
   createdAt,
   setIsEdit,
   collection,
+  isMember,
 }: UserInfoHeaderProps) {
   const [coords, setCoords] = useState({ x: 0, y: 0 });
   const [openOptions, setOpenOptions] = useState(false);
@@ -46,7 +53,13 @@ function UserInfoHeader({
     />
   );
 
+  const { user } = useGetMeQuery(null, {
+    selectFromResult: ({ data }) => ({ user: data || null }),
+  });
+
   const [deleteComment] = useDeleteCommentMutation();
+  const [joinCollection] = useJoinCollectionMutation();
+  const [leaveCollection] = useLeaveCollectionMutation();
   const [deletePost, { isSuccess }] = useDeletePostMutation();
 
   const navigate = useNavigate();
@@ -76,16 +89,49 @@ function UserInfoHeader({
     }
   }, [isSuccess]);
 
+  const handleOnClickHeader = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+
+    if (!user) {
+      return navigate("/login");
+    }
+
+    if (collection) {
+      if (isMember) {
+        return leaveCollection(collection.id);
+      }
+      const collectionId = collection.id;
+      const role = "MEMBER";
+      joinCollection({ collectionId, role });
+    } else {
+      setCoords(() => ({
+        x: editItemName === "Post" ? e.clientX - 120 : e.clientX - 160,
+        y: e.clientY + 10,
+      }));
+      setOpenOptions(true);
+    }
+  };
+
   let headerContent;
   if (collection) {
     headerContent = (
       <>
-        {collectionPhoto}
+        <Link
+          to={`meditations/${collection.id}`}
+          className="flex gap-2 text-sm items-start hover:opacity-90"
+        >
+          {collectionPhoto}
+        </Link>
         <p className="inline-flex leading-tight flex-col italic">
-          <div className="text-gray-900 font-bold">{collection.name}</div>
-          <div className="text-gray-600 font-semibold">
+          <Link
+            to={`meditations/${collection.id}`}
+            className="flex gap-2 text-sm items-start hover:underline"
+          >
+            <span className="text-gray-900 font-bold">{collection.name}</span>
+          </Link>
+          <span className="text-gray-600 font-semibold">
             By {author && author.name}
-          </div>
+          </span>
         </p>
       </>
     );
@@ -118,17 +164,11 @@ function UserInfoHeader({
         <p className="text-gray-600">{getTimeDiffrenceFromDate(createdAt)}</p>
       </div>
       <Button
-        variant={"ghost"}
-        className="h-6 text-lg font-bold"
-        onClick={(e) => {
-          setCoords(() => ({
-            x: editItemName === "Post" ? e.clientX - 120 : e.clientX - 160,
-            y: e.clientY + 10,
-          }));
-          setOpenOptions(true);
-        }}
+        variant={collection ? "default" : "ghost"}
+        className={cn(!collection && "text-lg", "h-6 font-bold")}
+        onClick={handleOnClickHeader}
       >
-        …
+        {collection ? (isMember ? "Leave" : "Join") : "…"}
       </Button>
       {openOptions && (
         <FlyoutMenu setShowFlyoutMenu={setOpenOptions} coords={coords}>

@@ -67,3 +67,14 @@ export type Post = {
   comments: Comment[];
   collection: Collection;
 };
+
+export type CollectionAccount = {
+  id: string;
+  role: "ADMIN" | "MEMBER";
+  userId: string;
+  collectionId: string;
+};
+
+export type CollectionAccounts = {
+  [key: string]: "ADMIN" | "MEMBER";
+};

@@ -82,9 +82,9 @@ function Header() {
   return (
     <header className="sticky top-0 z-30">
       <div className="flex justify-between text-white items-center bg-indigo-600 container mx-auto max-w-screen-xl py-3">
-        <div>
+        <NavLink to="/">
           <Logo size="small" />
-        </div>
+        </NavLink>
 
         <div className="flex items-center gap-2">
           <div id="desktop-nav" className="sm: hidden lg:block mr-6">

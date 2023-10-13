@@ -42,4 +42,8 @@
   .editor > .ql-container.ql-snow {
     border: none;
   }
+
+  .edit-container-quill > .ql-container.ql-snow {
+    height: 40dvh;
+  }
 }

@@ -44,7 +44,7 @@ function MobileMenu({
             return (
               <li
                 key={link.name}
-                className="flex gap-2 py-1"
+                className="flex gap-2 py-1 cursor-pointer"
                 onClick={() => onClick(link.name === "Logout")}
               >
                 {link.icon}

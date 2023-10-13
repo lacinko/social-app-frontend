@@ -29,7 +29,7 @@ function CommentItem({
     <div>
       <div key={comment.id}>
         <UserInfoHeader
-          collectionName={null}
+          collection={null}
           author={comment.author}
           createdAt={comment.createdAt}
           id={comment.id}
@@ -58,6 +58,7 @@ function CommentItem({
           myLike={myLike}
           comments={comment.children.length}
           commentId={comment.id}
+          postId={comment.postId}
           handleComment={() => {
             setCommentToReply(!commentToReply);
             setIsFocused(true);

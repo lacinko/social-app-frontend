@@ -1,7 +1,7 @@
 import { useGetCollectionsQuery } from "@/redux/api/collectionApiSlice";
 import L_Label from "@/components/Label";
 import L_Input from "@/components/Input";
-import { Button } from "@/components/ui/Button";
+import { Button, buttonVariants } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import React, { useEffect, useState } from "react";
 import { Icons } from "@/components/Icons";
@@ -12,6 +12,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useCreatePostMutation } from "@/redux/api/postApiSlice";
 import { toast } from "@/components/ui/use-toast";
+import { NavLink } from "react-router-dom";
+import PageView from "@/components/PageView";
 
 type screenView = "Post" | "Images" | "Link" | "Poll";
 
@@ -22,7 +24,7 @@ function SubmitPostPage() {
     isSuccess,
     isError,
     currentData: collections,
-  } = useGetCollectionsQuery({});
+  } = useGetCollectionsQuery(null);
   const [createPost, { isSuccess: isPostSubmitSuccess }] =
     useCreatePostMutation();
 
@@ -95,33 +97,46 @@ function SubmitPostPage() {
 
   if (isLoading) return <div>Loading...</div>;
 
-  console.log(errors);
-
   return (
-    <div className="container py-3">
-      <div>
+    <>
+      <PageView
+        links={[
+          { href: "/create-collection", title: "Create Collection" },
+          { href: "/submit-post", title: "Create Post" },
+        ]}
+      />
+      <div className="container py-4">
         <div
           id="#submit-post-page__header"
           className="flex flex-col justify-between "
         >
           <h1 className="font-bold text-xl">Create a post</h1>
-          <L_Label htmlFor="collection" className="pt-4 pb-2">
-            Collection
+          <L_Label
+            error={!!errors["collectionId"]}
+            htmlFor="name"
+            className="font-semibold text-base py-2 text-gray-900"
+          >
+            Name
           </L_Label>
           <select
             name=""
             id=""
             className={cn(
               errors["collectionId"] && "border-destructive",
-              "border p-2 rounded-md"
+              "focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none focus-visible:ring-indigo-600 border p-2 rounded-md"
             )}
             onClick={handleSelectCollection}
           >
-            {collections.map((collection) => (
-              <option key={collection.id} value={collection.id}>
-                {collection.name}
-              </option>
-            ))}
+            {collections &&
+              collections.map((collection) => (
+                <option
+                  key={collection.id}
+                  value={collection.id}
+                  className="checked:bg-indigo-200"
+                >
+                  {collection.name}
+                </option>
+              ))}
           </select>
           {errors["collectionId"] && (
             <p role="alert" className="text-sm font-medium text-destructive">
@@ -175,7 +190,17 @@ function SubmitPostPage() {
             <Icons.list className="h-7 w-7 pr-2" /> Poll
           </Button>
         </div>
-        <form onSubmit={handleSubmit(onSubmitHandler)}>
+        <form
+          onSubmit={handleSubmit(onSubmitHandler)}
+          className="flex flex-col"
+        >
+          <L_Label
+            error={!!errors["title"]}
+            htmlFor="name"
+            className="font-semibold text-base pt-6 pb-2 text-gray-900"
+          >
+            Title
+          </L_Label>
           <L_Input
             id="title"
             name="title"
@@ -190,7 +215,7 @@ function SubmitPostPage() {
             required
             className={cn(
               errors["title"] && "border-destructive",
-              "focus-visible:ring-indigo-600 mt-4"
+              "focus-visible:ring-indigo-600"
             )}
           />
           {errors["title"] && (
@@ -198,13 +223,20 @@ function SubmitPostPage() {
               {errors["title"]?.message}
             </p>
           )}
+          <L_Label
+            error={!!errors["content"]}
+            htmlFor="name"
+            className="font-semibold text-base pt-6 pb-2 text-gray-900"
+          >
+            Content
+          </L_Label>
           <ReactQuill
             theme="snow"
             value={editorContent}
             onChange={onEditorStateChange}
             className={cn(
               errors["content"] && "border-destructive border rounded-md",
-              "mt-4"
+              "edit-container-quill"
             )}
           />
           {errors["content"] && (
@@ -219,7 +251,7 @@ function SubmitPostPage() {
           </div>
         </form>
       </div>
-    </div>
+    </>
   );
 }
 

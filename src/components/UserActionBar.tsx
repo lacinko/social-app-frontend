@@ -1,12 +1,14 @@
 import { Button } from "./ui/Button";
 import { Icons } from "./Icons";
 import { Like } from "@/redux/api/types";
-import { cn } from "@/lib/utils";
+import { cn, copyContent } from "@/lib/utils";
 import {
   useCreateLikeMutation,
   useDeleteLikeMutation,
   useUpdateLikeMutation,
 } from "@/redux/api/likeApiSlice";
+import { useLocation } from "react-router-dom";
+import { toast } from "./ui/use-toast";
 
 type UserActionBarProps = {
   likes: number;
@@ -25,6 +27,7 @@ function UserActionBar({
   commentId,
   handleComment,
 }: UserActionBarProps) {
+  const SERVER_URL = import.meta.env.VITE_SITE_URL as string;
   const isLiked = !!myLike;
 
   const [createLike] = useCreateLikeMutation();
@@ -72,9 +75,15 @@ function UserActionBar({
   };
   const buttonCSS = setButtonClass();
 
-  const handleShare = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleShare = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    console.log("POST-ID", postId, "COMMENT-ID", commentId);
+    const shareUrl = `${SERVER_URL}/post/${postId}/${
+      commentId ? commentId : ""
+    }`;
+    const msg = await copyContent(shareUrl);
+    toast({
+      title: msg,
+    });
   };
 
   return (

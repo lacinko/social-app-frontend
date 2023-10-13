@@ -12,6 +12,7 @@ import CollectionPageDetail from "@/pages/CollectionPageDetail";
 import SubmitPostPage from "@/pages/SubmitPostPage";
 import PostDetailPage from "@/pages/PostDetailPage";
 import HomePage from "@/pages/HomePage";
+import ProfilePage from "@/pages/ProfilePage";
 
 export const router = createBrowserRouter([
   {
@@ -64,7 +65,7 @@ export const router = createBrowserRouter([
         children: [
           {
             path: "profile",
-            element: <div>Profile</div>,
+            element: <ProfilePage />,
           },
           {
             path: "meditations",
@@ -83,6 +84,10 @@ export const router = createBrowserRouter([
           {
             path: "submit-post",
             element: <SubmitPostPage />,
+          },
+          {
+            path: "create-collection",
+            element: <CreateCollectionPage />,
           },
           {
             path: "post/:postId",

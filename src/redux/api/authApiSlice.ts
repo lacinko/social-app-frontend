@@ -3,7 +3,7 @@ import { RegisterInput } from "../../pages/register.page";
 import { IGenericResponse } from "./types";
 import { userApi } from "./userApiSlice";
 import { apiSlice } from "./apiSlice";
-import { logout } from "../features/userSlice";
+import { collectionApiSlice } from "./collectionApiSlice";
 
 export const authApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -56,10 +56,14 @@ export const authApi = apiSlice.injectEndpoints({
           credentials: "include",
         };
       },
-      invalidatesTags: ["User"],
+      invalidatesTags: ["User", "CollectionsAccounts"],
       async onQueryStarted(_args, { dispatch, queryFulfilled }) {
         try {
           await queryFulfilled;
+          /*dispatch(
+            userApi.util.invalidateTags(["User", "CollectionsAccounts"])
+          );*/
+          dispatch(collectionApiSlice.util.resetApiState());
           dispatch(userApi.util.upsertQueryData("getMe", null, null));
         } catch (error) {
           console.log(error);
