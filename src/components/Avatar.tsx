@@ -6,6 +6,10 @@ type AvatarProps = {
 };
 
 function Avatar({ user }: AvatarProps) {
+  const userPhotoURL = `${
+    import.meta.env.VITE_SERVER_ENDPOINT
+  }/images/profile/${user?.photo}`;
+
   if (!user)
     return (
       <Link
@@ -20,7 +24,7 @@ function Avatar({ user }: AvatarProps) {
     <Link to="/profile">
       <img
         className="w-8 h-8 border-white border-2 rounded-full"
-        src="/avatar-images/augustus.png"
+        src={userPhotoURL}
         alt="profile-image"
       />
     </Link>

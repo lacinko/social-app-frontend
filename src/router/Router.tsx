@@ -1,18 +1,20 @@
+/* eslint-disable react-refresh/only-export-components */
+import { lazy } from "react";
+import { createBrowserRouter } from "react-router-dom";
 import RequireUser from "@/components/RequireUser";
 import Layout from "@/components/layout/Layout";
-import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
-import LoginPage from "@/pages/LoginPage";
-import RegisterPage from "@/pages/RegisterPage";
-import ResetPasswordPage from "@/pages/ResetPasswordPage";
-import VerifyEmailPage from "@/pages/VerifyEmailPage";
-import { createBrowserRouter } from "react-router-dom";
-import MeditationsPage from "@/pages/MeditationsPage";
-import CreateCollectionPage from "@/pages/CreateCollectionPage";
-import CollectionPageDetail from "@/pages/CollectionPageDetail";
-import SubmitPostPage from "@/pages/SubmitPostPage";
-import PostDetailPage from "@/pages/PostDetailPage";
-import HomePage from "@/pages/HomePage";
-import ProfilePage from "@/pages/ProfilePage";
+const ForgotPasswordPage = lazy(() => import("@/pages/ForgotPasswordPage"));
+const LoginPage = lazy(() => import("@/pages/LoginPage"));
+const RegisterPage = lazy(() => import("@/pages/RegisterPage"));
+const ResetPasswordPage = lazy(() => import("@/pages/ResetPasswordPage"));
+const VerifyEmailPage = lazy(() => import("@/pages/VerifyEmailPage"));
+const MeditationsPage = lazy(() => import("@/pages/MeditationsPage"));
+const CreateCollectionPage = lazy(() => import("@/pages/CreateCollectionPage"));
+const CollectionPageDetail = lazy(() => import("@/pages/CollectionPageDetail"));
+const SubmitPostPage = lazy(() => import("@/pages/SubmitPostPage"));
+const PostDetailPage = lazy(() => import("@/pages/PostDetailPage"));
+const HomePage = lazy(() => import("@/pages/HomePage"));
+const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 
 export const router = createBrowserRouter([
   {

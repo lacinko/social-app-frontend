@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Header from "./Header";
 import { Outlet } from "react-router-dom";
 import Footer from "./Footer";
@@ -9,7 +10,9 @@ function Layout() {
       <Toaster />
       <Header />
       <main className="flex-grow w-full h-full mx-auto max-w-screen-xl">
-        <Outlet />
+        <Suspense fallback={<div>Loading....</div>}>
+          <Outlet />
+        </Suspense>
       </main>
       <Footer />
     </div>

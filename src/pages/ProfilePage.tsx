@@ -4,20 +4,42 @@ import { useForm } from "react-hook-form";
 import { Icons } from "@/components/Icons";
 import { Button } from "@/components/ui/Button";
 import { useFilter } from "@/hooks/useFilter";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Like, Post } from "@/redux/api/types";
 import PostItem from "@/components/PostItem";
 import { convertUrlParamsIntoURLString } from "@/lib/utils";
 import { useGetCollectionsAccountsQuery } from "@/redux/api/collectionApiSlice";
+import { TypeOf, object, z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const imageUploadSchema = object({
+  username: z
+    .string()
+    .min(3, "Username can't be shorter than 3 characters")
+    .max(30, "Username can't be longer than 30 characters"),
+  photo: z.instanceof(File).or(z.string()),
+});
+
+type IUploadImage = TypeOf<typeof imageUploadSchema>;
 
 function ProfilePage() {
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+
   const { user } = useGetMeQuery(null, {
     selectFromResult: ({ data }) => ({ user: data || null }),
   });
 
-  const [updateUser] = useUpdateUserMutation();
+  const [updateUser, { isError: isUpdateUserError }] = useUpdateUserMutation();
 
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, formState, setValue } = useForm<IUploadImage>(
+    {
+      resolver: zodResolver(imageUploadSchema),
+      defaultValues: {
+        username: user?.name,
+        photo: user?.photo,
+      },
+    }
+  );
 
   const { isFetching, isError, filteredPosts, setFeed } = useFilter();
 
@@ -27,6 +49,10 @@ function ProfilePage() {
     },
   };
 
+  const profilePictureSrc = imageSrc
+    ? imageSrc
+    : `${import.meta.env.VITE_SERVER_ENDPOINT}/images/profile/${user?.photo}`;
+
   const collectionsAccountsQueryString = convertUrlParamsIntoURLString(
     collectionsAccountsQueryParams
   );
@@ -34,14 +60,46 @@ function ProfilePage() {
     collectionsAccountsQueryString
   );
 
-  const onSubmitHandler = (values) => {
+  const onSubmitHandler = (values: IUploadImage) => {
     console.log(values);
-    updateUser(values);
+
+    const formData = new FormData();
+
+    formData.append("image", values.photo);
+    formData.append("name", values.username);
+
+    // Call the Upload API
+    updateUser(formData);
+  };
+
+  const handleOnChangePicture = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files && e.target.files[0];
+
+    if (selectedFile) {
+      // Create a FileReader to read the selected file as a data URL
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        // Set the data URL as the source for the image element
+        const imgURL = e.target ? (e.target.result as string) : null;
+        setImageSrc(imgURL);
+      };
+
+      reader.readAsDataURL(selectedFile);
+      setValue("photo", selectedFile);
+    } else {
+      setImageSrc(null); // Clear the image if no file is selected
+    }
   };
 
   useEffect(() => {
     setFeed("My Posts");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  useEffect(() => {
+    setImageSrc(null);
+  }, [isUpdateUserError]);
 
   let posts;
 
@@ -82,6 +140,8 @@ function ProfilePage() {
         className="flex flex-col gap-4"
         onSubmit={handleSubmit(onSubmitHandler)}
       >
+        {formState.errors.username?.message}
+        {formState.errors.photo?.message}
         <section>
           <h2 className="text-base font-medium">Username</h2>
           <p className="text-sm">
@@ -98,19 +158,20 @@ function ProfilePage() {
           <h2 className="text-base font-medium">Profile Picture</h2>
           <p className="text-sm">Images must be .png or .jpg format</p>
           <div className="relative h-20 w-20 mt-3">
-            <label className="absolute z-10 bottom-0 h-20 w-20">
+            <label className="absolute z-10 bottom-0 h-20 w-20 hover:cursor-pointer">
               <Icons.upload className="absolute h-9 w-9 bottom-0 right-0" />
               <input
                 type="file"
                 id="photo"
                 className="hidden"
                 {...register("photo")}
+                onChange={handleOnChangePicture}
               />
             </label>
             <img
-              src={user?.photo && "/avatar-images/augustus.png"}
+              src={profilePictureSrc}
               alt="profile-picture"
-              className="absolute top-0"
+              className="absolute object-cover aspect-square top-0 rounded-full"
             />
           </div>
         </section>

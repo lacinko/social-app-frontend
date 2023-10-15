@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import FlyoutMenu from "./FlyoutMenu";
 import { useDeleteCommentMutation } from "@/redux/api/commentApiSlice";
 import { useDeletePostMutation } from "@/redux/api/postApiSlice";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "./ui/use-toast";
 import { Collection } from "@/redux/api/types";
 import {
@@ -38,12 +38,9 @@ function UserInfoHeader({
 }: UserInfoHeaderProps) {
   const [coords, setCoords] = useState({ x: 0, y: 0 });
   const [openOptions, setOpenOptions] = useState(false);
-  const userPhoto =
-    author && !author.photo ? (
-      author.photo
-    ) : (
-      <Icons.user className="w-6 h-6 " />
-    );
+  const userPhoto = `${
+    import.meta.env.VITE_SERVER_ENDPOINT
+  }/images/profile/${author?.photo}`;
 
   const collectionPhoto = (
     <img
@@ -112,33 +109,42 @@ function UserInfoHeader({
     }
   };
 
+  const handleClickNavigate = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    navigate(`meditations/${collection?.id}`);
+  };
+
   let headerContent;
   if (collection) {
     headerContent = (
       <>
-        <Link
-          to={`meditations/${collection.id}`}
+        <div
           className="flex gap-2 text-sm items-start hover:opacity-90"
+          onClick={handleClickNavigate}
         >
           {collectionPhoto}
-        </Link>
-        <p className="inline-flex leading-tight flex-col italic">
-          <Link
-            to={`meditations/${collection.id}`}
-            className="flex gap-2 text-sm items-start hover:underline"
+        </div>
+        <div className="inline-flex leading-tight flex-col italic">
+          <div
+            className="flex gap-2 text-sm items-start hover:opacity-90 hover:underline"
+            onClick={handleClickNavigate}
           >
             <span className="text-gray-900 font-bold">{collection.name}</span>
-          </Link>
+          </div>
           <span className="text-gray-600 font-semibold">
             By {author && author.name}
           </span>
-        </p>
+        </div>
       </>
     );
   } else {
     headerContent = (
       <>
-        {userPhoto}
+        <img
+          className="w-10 h-10 rounded-full border-2 border-black shadow-lg"
+          src={userPhoto}
+          alt="profile-image"
+        />
         <p className="inline-flex flex-col text-gray-600 font-semibold italic">
           {author && author.name}
         </p>
