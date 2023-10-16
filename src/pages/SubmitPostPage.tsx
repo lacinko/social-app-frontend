@@ -1,24 +1,25 @@
 import { useGetCollectionsQuery } from "@/redux/api/collectionApiSlice";
 import L_Label from "@/components/Label";
 import L_Input from "@/components/Input";
-import { Button, buttonVariants } from "@/components/ui/Button";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import React, { useEffect, useState } from "react";
 import { Icons } from "@/components/Icons";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { TypeOf, object, string } from "zod";
+import { TypeOf, z, array, object, string } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useCreatePostMutation } from "@/redux/api/postApiSlice";
 import { toast } from "@/components/ui/use-toast";
-import { NavLink } from "react-router-dom";
 import PageView from "@/components/PageView";
+import FileDrop from "@/components/FileDrop";
 
 type screenView = "Post" | "Images" | "Link" | "Poll";
 
 function SubmitPostPage() {
   const [screenView, setScreenView] = useState<screenView>("Post");
+  let pageContent;
   const {
     isLoading,
     isSuccess,
@@ -34,7 +35,10 @@ function SubmitPostPage() {
     collectionId: string().min(1, "Collection is required"),
     title: string().min(1, "Title is required"),
     content: string().min(1, "Content is required"),
-    image: string().min(1, "Image is required"),
+    images: z
+      .instanceof(File)
+      .array()
+      .max(5, "Can't exceed limit of 5 images per post"),
   });
 
   type TPost = TypeOf<typeof postSchema>;
@@ -52,17 +56,22 @@ function SubmitPostPage() {
       collectionId: collections && collections[0].id,
       title: "",
       content: "",
-      image: "default-image.jpg",
+      images: [],
     },
   });
 
   const onSubmitHandler: SubmitHandler<TPost> = async (values: TPost) => {
-    try {
-      console.log(values);
-      await createPost(values);
-    } catch (err) {
-      console.log(err);
-    }
+    console.log(values);
+    const formData = new FormData();
+
+    formData.append("collectionId", values.collectionId);
+    formData.append("content", values.content);
+    formData.append("title", values.title);
+    values.images.forEach((img: File) => {
+      formData.append("images", img);
+    });
+
+    createPost(formData);
   };
 
   useEffect(() => {
@@ -84,6 +93,7 @@ function SubmitPostPage() {
   };
 
   const editorContent = watch("content");
+  const files = watch("images");
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     const view = e.currentTarget.name as screenView;
@@ -96,6 +106,72 @@ function SubmitPostPage() {
   };
 
   if (isLoading) return <div>Loading...</div>;
+
+  if (screenView === "Post") {
+    pageContent = (
+      <>
+        <L_Label
+          error={!!errors["title"]}
+          htmlFor="name"
+          className="font-semibold text-base pt-6 pb-2 text-gray-900"
+        >
+          Title
+        </L_Label>
+        <L_Input
+          id="title"
+          name="title"
+          type="text"
+          register={register}
+          aria-invalid={errors["title"] ? "true" : "false"}
+          aria-describedby={
+            errors["title"]
+              ? `title - ${errors["title"]?.message}`
+              : "Post title field value"
+          }
+          required
+          className={cn(
+            errors["title"] && "border-destructive",
+            "focus-visible:ring-indigo-600"
+          )}
+        />
+        {errors["title"] && (
+          <p role="alert" className="text-sm font-medium text-destructive">
+            {errors["title"]?.message}
+          </p>
+        )}
+        <L_Label
+          error={!!errors["content"]}
+          htmlFor="name"
+          className="font-semibold text-base pt-6 pb-2 text-gray-900"
+        >
+          Content
+        </L_Label>
+        <ReactQuill
+          theme="snow"
+          value={editorContent}
+          onChange={onEditorStateChange}
+          className={cn(
+            errors["content"] && "border-destructive border rounded-md",
+            "edit-container-quill"
+          )}
+        />
+        {errors["content"] && (
+          <p role="alert" className="text-sm font-medium text-destructive">
+            {errors["content"]?.message}
+          </p>
+        )}
+        <div>
+          <Button type="submit" className="w-full mt-4" isLoading={isLoading}>
+            Post
+          </Button>
+        </div>
+      </>
+    );
+  }
+
+  if (screenView === "Images") {
+    pageContent = <FileDrop formImages={files} setValue={setValue} />;
+  }
 
   return (
     <>
@@ -194,61 +270,7 @@ function SubmitPostPage() {
           onSubmit={handleSubmit(onSubmitHandler)}
           className="flex flex-col"
         >
-          <L_Label
-            error={!!errors["title"]}
-            htmlFor="name"
-            className="font-semibold text-base pt-6 pb-2 text-gray-900"
-          >
-            Title
-          </L_Label>
-          <L_Input
-            id="title"
-            name="title"
-            type="text"
-            register={register}
-            aria-invalid={errors["title"] ? "true" : "false"}
-            aria-describedby={
-              errors["title"]
-                ? `title - ${errors["title"]?.message}`
-                : "Post title field value"
-            }
-            required
-            className={cn(
-              errors["title"] && "border-destructive",
-              "focus-visible:ring-indigo-600"
-            )}
-          />
-          {errors["title"] && (
-            <p role="alert" className="text-sm font-medium text-destructive">
-              {errors["title"]?.message}
-            </p>
-          )}
-          <L_Label
-            error={!!errors["content"]}
-            htmlFor="name"
-            className="font-semibold text-base pt-6 pb-2 text-gray-900"
-          >
-            Content
-          </L_Label>
-          <ReactQuill
-            theme="snow"
-            value={editorContent}
-            onChange={onEditorStateChange}
-            className={cn(
-              errors["content"] && "border-destructive border rounded-md",
-              "edit-container-quill"
-            )}
-          />
-          {errors["content"] && (
-            <p role="alert" className="text-sm font-medium text-destructive">
-              {errors["content"]?.message}
-            </p>
-          )}
-          <div>
-            <Button type="submit" className="w-full mt-4" isLoading={isLoading}>
-              Post
-            </Button>
-          </div>
+          {pageContent}
         </form>
       </div>
     </>
