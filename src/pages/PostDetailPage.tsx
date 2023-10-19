@@ -1,4 +1,5 @@
 import CommentList from "@/components/CommentList";
+import ImageCarousel from "@/components/ImageCarousel";
 import LeaveComment from "@/components/LeaveComment";
 import PostItem from "@/components/PostItem";
 import { convertUrlParamsIntoURLString } from "@/lib/utils";
@@ -23,6 +24,11 @@ function PostDetailPage() {
       collection: true,
       author: true,
       likes: true,
+      images: {
+        select: {
+          url: true,
+        },
+      },
       comments: {
         include: {
           likes: true,

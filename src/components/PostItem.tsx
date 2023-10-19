@@ -9,6 +9,7 @@ import { TypeOf, object, string } from "zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useUpdatePostMutation } from "@/redux/api/postApiSlice";
+import ImageCarousel from "./ImageCarousel";
 
 type PostItem = {
   id: string;
@@ -31,6 +32,9 @@ type PostItem = {
   myLike: Like;
   collection: Collection;
   isMember: boolean;
+  images: {
+    url: string;
+  }[];
 };
 
 function PostItem({
@@ -46,6 +50,7 @@ function PostItem({
   myLike,
   collection,
   isMember,
+  images,
 }: PostItem) {
   const [isEdit, setIsEdit] = useState(false);
   const likesTotal = (likes as Like[]).filter((like) => like.isPositive).length;
@@ -60,6 +65,17 @@ function PostItem({
 
   const updatePostSchema = object({
     content: string().min(1, "Content is required"),
+  });
+
+  const postImages = images?.map((img) => {
+    if (images.length === 1)
+      return `${import.meta.env.VITE_SERVER_ENDPOINT}/images/posts/multiple/${
+        img.url
+      }`;
+    if (images.length > 1)
+      return `${import.meta.env.VITE_SERVER_ENDPOINT}/images/posts/multiple/${
+        img.url
+      }`;
   });
 
   type TUpdatePost = TypeOf<typeof updatePostSchema>;
@@ -113,32 +129,35 @@ function PostItem({
         />
         <p className="text-xl font-semibold pt-4">{title}</p>
         {isDetail && (
-          <form
-            className={isEdit ? "mt-4" : ""}
-            onSubmit={handleSubmit(onSubmitHandler)}
-          >
-            <ReactQuill
-              theme="snow"
-              value={isEdit ? editorContent : content}
-              onChange={onEditorStateChange}
-              readOnly={!isEdit}
-              className={isEdit ? "" : "editor"}
-            />
-            {isEdit && (
-              <div className="flex justify-end gap-2 mt-4">
-                <Button
-                  type="button"
-                  onClick={() => {
-                    setIsEdit(false);
-                  }}
-                  variant={"outline"}
-                >
-                  Cancel
-                </Button>
-                <Button>{isEdit ? "Update" : "Send"}</Button>
-              </div>
-            )}
-          </form>
+          <>
+            <ImageCarousel pictureURLs={postImages} />
+            <form
+              className={isEdit ? "mt-4" : ""}
+              onSubmit={handleSubmit(onSubmitHandler)}
+            >
+              <ReactQuill
+                theme="snow"
+                value={isEdit ? editorContent : content}
+                onChange={onEditorStateChange}
+                readOnly={!isEdit}
+                className={isEdit ? "" : "editor"}
+              />
+              {isEdit && (
+                <div className="flex justify-end gap-2 mt-4">
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setIsEdit(false);
+                    }}
+                    variant={"outline"}
+                  >
+                    Cancel
+                  </Button>
+                  <Button>{isEdit ? "Update" : "Send"}</Button>
+                </div>
+              )}
+            </form>
+          </>
         )}
         <UserActionBar
           likes={likesTotal - dislikesTotal}

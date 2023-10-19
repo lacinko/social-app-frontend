@@ -12,6 +12,7 @@ export const postApiSlice = apiSlice.injectEndpoints({
           credentials: "include",
         };
       },
+      invalidatesTags: ["Post"],
     }),
     getPosts: builder.query<Post[], string>({
       query(postsQueryString) {
@@ -25,9 +26,6 @@ export const postApiSlice = apiSlice.injectEndpoints({
       },
       providesTags: ["Post"],
     }),
-    /*
-    TODO: getUserPosts
-    */
     getPostsByCollection: builder.query({
       query({ collectionId, postQueryString }) {
         return {

@@ -29,8 +29,6 @@ function SubmitPostPage() {
   const [createPost, { isSuccess: isPostSubmitSuccess }] =
     useCreatePostMutation();
 
-  console.log(collections);
-
   const postSchema = object({
     collectionId: string().min(1, "Collection is required"),
     title: string().min(1, "Title is required"),
@@ -61,7 +59,6 @@ function SubmitPostPage() {
   });
 
   const onSubmitHandler: SubmitHandler<TPost> = async (values: TPost) => {
-    console.log(values);
     const formData = new FormData();
 
     formData.append("collectionId", values.collectionId);
