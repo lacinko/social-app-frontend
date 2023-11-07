@@ -1,7 +1,6 @@
 import { cn } from "@/lib/utils";
 import React, { useState } from "react";
 import { Icons } from "./Icons";
-import { motion, AnimatePresence } from "framer-motion";
 
 type ImageCarouselProps = {
   pictureURLs: string[];
@@ -22,6 +21,7 @@ function ImageCarousel({ pictureURLs }: ImageCarouselProps) {
   };
 
   const dotButtons: React.ReactElement[] = [];
+
   return (
     <div className="relative flex overflow-x-auto my-4 max-w-3xl">
       <button
@@ -43,6 +43,12 @@ function ImageCarousel({ pictureURLs }: ImageCarouselProps) {
           )}
         />
       </button>
+      <img
+        src={pictureURLs[imageIndex]}
+        alt=""
+        className={cn("w-full bg-white")}
+      />
+
       {pictureURLs &&
         pictureURLs.map((link, idx) => {
           const dotClass = imageIndex === idx ? "bg-white" : "bg-slate-400";
@@ -61,14 +67,6 @@ function ImageCarousel({ pictureURLs }: ImageCarouselProps) {
 
           return (
             <React.Fragment key={link}>
-              <img
-                src={link}
-                alt=""
-                className={cn(
-                  "w-full bg-white",
-                  imageIndex === pictureURLs.indexOf(link) ? "block" : "hidden"
-                )}
-              />
               {idx === pictureURLs.length - 1 && (
                 <div
                   className={cn(
